@@ -2,77 +2,164 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Carga de productos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carga de productos — EstadosYa</title>
   <style>
-    body {
-      font-family: Arial;
-      padding: 20px;
-      background: #f5f5f5;
-    }
-    .box {
-      max-width: 400px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-    }
-    input, select, button {
-      width: 100%;
-      margin-top: 10px;
-      padding: 10px;
-    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;background:#f5f5f5;padding:20px;min-height:100vh}
+    .box{max-width:420px;margin:auto;background:white;padding:24px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+    h2{font-size:18px;margin-bottom:4px;color:#1c1917}
+    .cliente-label{font-size:13px;color:#52b788;font-weight:600;margin-bottom:20px}
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+    .field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#9c968e}
+    input,select{padding:10px 12px;font-size:14px;border:1.5px solid #e9e4dc;border-radius:8px;background:#f9f7f4;color:#1c1917;outline:none;width:100%}
+    input:focus,select:focus{border-color:#2d6a4f}
+    .thumb-wrap{display:none;margin-top:8px}
+    .thumb-wrap img{width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #e9e4dc}
+    button{width:100%;padding:13px;font-size:14px;font-weight:700;border:none;border-radius:8px;background:#2d6a4f;color:white;cursor:pointer;margin-top:8px}
+    button:hover{background:#1f5038}
+    button:disabled{opacity:.5;cursor:default}
+    .msg{margin-top:12px;font-size:13px;text-align:center;padding:10px;border-radius:8px;display:none}
+    .msg.ok{background:#f0f7f4;color:#2d6a4f}
+    .msg.err{background:#fff5f5;color:#e63946}
+    .upload-status{font-size:12px;color:#9c968e;margin-top:4px}
   </style>
 </head>
 <body>
-
 <div class="box">
   <h2>Subir producto</h2>
+  <div class="cliente-label" id="clienteLabel">Cargando...</div>
 
-  <p id="cliente"></p>
+  <div class="field">
+    <label>Nombre del producto</label>
+    <input type="text" id="nombre" placeholder="Ej: Vestido floral">
+  </div>
 
-  <input type="text" id="nombre" placeholder="Nombre del producto">
+  <div class="field">
+    <label>Foto del producto</label>
+    <input type="file" id="imagen" accept="image/*" onchange="previsualizarFoto(this)">
+    <div class="upload-status" id="uploadStatus"></div>
+    <div class="thumb-wrap" id="thumbWrap"><img id="thumbImg" src=""></div>
+  </div>
 
-  <input type="number" id="precio_lista" placeholder="Precio lista">
-  <input type="number" id="precio_contado" placeholder="Precio contado">
-  <input type="number" id="precio_transferencia" placeholder="Precio transferencia">
+  <div class="field">
+    <label>Precio lista</label>
+    <input type="number" id="precio_lista" placeholder="45000">
+  </div>
 
-  <select id="badge">
-    <option value="">Sin badge</option>
-    <option value="novedad">Novedad</option>
-    <option value="promo">Promo</option>
-    <option value="sale">Sale</option>
-  </select>
+  <div class="field">
+    <label>Badge (opcional)</label>
+    <select id="badge">
+      <option value="">Sin badge</option>
+      <option value="NUEVO">🟢 Novedad</option>
+      <option value="ULTIMAS">🔴 Últimas unidades</option>
+      <option value="PROMO">⭐ Promo</option>
+    </select>
+  </div>
 
-  <input type="file" id="imagen">
-
-  <button onclick="enviar()">Enviar</button>
+  <button id="btnEnviar" onclick="enviar()">Enviar producto</button>
+  <div class="msg" id="msg"></div>
 </div>
 
 <script>
-  // leer cliente desde URL
-  const params = new URLSearchParams(window.location.search);
-  const cliente = params.get("c");
+const SUPABASE_URL = 'https://xyvenpaanrbdragajmxn.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5dmVucGFhbnJiZHJhZ2FqbXhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NzI0MTYsImV4cCI6MjA5NjI0ODQxNn0.bOtGJVBFXVQv_v0O3xP3eNhqKDiTzG115uYxpe3boXs';
+const CLOUDINARY_CLOUD = 'danlc50hp';
+const CLOUDINARY_PRESET = 'estadosya';
 
-  document.getElementById("cliente").innerText = cliente 
-    ? "Cliente: " + cliente 
-    : "Cliente no identificado";
+// Leer clienta desde URL ?c=nombre
+const params = new URLSearchParams(window.location.search);
+const clienteNombre = params.get('c') || '';
+const clienteId = params.get('id') || '';
 
-  function enviar() {
-    const data = {
-      cliente: cliente,
-      nombre: document.getElementById("nombre").value,
-      precio_lista: document.getElementById("precio_lista").value,
-      precio_contado: document.getElementById("precio_contado").value,
-      precio_transferencia: document.getElementById("precio_transferencia").value,
-      badge: document.getElementById("badge").value,
-      // imagen se procesa después (Supabase storage)
-    };
+document.getElementById('clienteLabel').textContent = clienteNombre
+  ? '📦 Cargando para: ' + clienteNombre
+  : '⚠️ Link incorrecto — contactá a tu proveedor';
 
-    console.log("Datos enviados:", data);
+let fotoUrl = '';
 
-    alert("Producto enviado (falta conectar a Supabase)");
+function previsualizarFoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('thumbImg').src = e.target.result;
+    document.getElementById('thumbWrap').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function subirFoto(file) {
+  document.getElementById('uploadStatus').textContent = 'Subiendo foto...';
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CLOUDINARY_PRESET);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, { method:'POST', body:fd });
+  if (!res.ok) throw new Error('Error subiendo foto');
+  const data = await res.json();
+  document.getElementById('uploadStatus').textContent = '✓ Foto lista';
+  return data.secure_url;
+}
+
+async function enviar() {
+  if (!clienteId) { mostrarMsg('Link incorrecto. Pedile el link correcto a tu proveedor.', 'err'); return; }
+  const nombre = document.getElementById('nombre').value.trim();
+  const precio_lista = parseFloat(document.getElementById('precio_lista').value) || 0;
+  const badge = document.getElementById('badge').value;
+  const imagenFile = document.getElementById('imagen').files[0];
+
+  if (!nombre) { mostrarMsg('Completá el nombre del producto', 'err'); return; }
+  if (!precio_lista) { mostrarMsg('Completá el precio lista', 'err'); return; }
+  if (!imagenFile) { mostrarMsg('Seleccioná una foto', 'err'); return; }
+
+  const btn = document.getElementById('btnEnviar');
+  btn.disabled = true; btn.textContent = 'Enviando...';
+
+  try {
+    fotoUrl = await subirFoto(imagenFile);
+
+    const res = await fetch(SUPABASE_URL + '/rest/v1/productos', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        nombre,
+        foto_url: fotoUrl,
+        precio_lista,
+        clienta_id: parseInt(clienteId),
+        badge: badge || null,
+        estado: 'pendiente'
+      })
+    });
+
+    if (!res.ok) throw new Error(await res.text());
+
+    mostrarMsg('✓ Producto enviado correctamente', 'ok');
+    document.getElementById('nombre').value = '';
+    document.getElementById('precio_lista').value = '';
+    document.getElementById('badge').value = '';
+    document.getElementById('imagen').value = '';
+    document.getElementById('thumbWrap').style.display = 'none';
+    document.getElementById('uploadStatus').textContent = '';
+    fotoUrl = '';
+  } catch(e) {
+    mostrarMsg('Error: ' + e.message, 'err');
   }
-</script>
 
+  btn.disabled = false; btn.textContent = 'Enviar producto';
+}
+
+function mostrarMsg(texto, tipo) {
+  const el = document.getElementById('msg');
+  el.textContent = texto;
+  el.className = 'msg ' + tipo;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 4000);
+}
+</script>
 </body>
 </html>
