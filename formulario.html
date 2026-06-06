@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Carga de productos</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .box {
+      max-width: 400px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    input, select, button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>Subir producto</h2>
+
+  <p id="cliente"></p>
+
+  <input type="text" id="nombre" placeholder="Nombre del producto">
+
+  <input type="number" id="precio_lista" placeholder="Precio lista">
+  <input type="number" id="precio_contado" placeholder="Precio contado">
+  <input type="number" id="precio_transferencia" placeholder="Precio transferencia">
+
+  <select id="badge">
+    <option value="">Sin badge</option>
+    <option value="novedad">Novedad</option>
+    <option value="promo">Promo</option>
+    <option value="sale">Sale</option>
+  </select>
+
+  <input type="file" id="imagen">
+
+  <button onclick="enviar()">Enviar</button>
+</div>
+
+<script>
+  // leer cliente desde URL
+  const params = new URLSearchParams(window.location.search);
+  const cliente = params.get("c");
+
+  document.getElementById("cliente").innerText = cliente 
+    ? "Cliente: " + cliente 
+    : "Cliente no identificado";
+
+  function enviar() {
+    const data = {
+      cliente: cliente,
+      nombre: document.getElementById("nombre").value,
+      precio_lista: document.getElementById("precio_lista").value,
+      precio_contado: document.getElementById("precio_contado").value,
+      precio_transferencia: document.getElementById("precio_transferencia").value,
+      badge: document.getElementById("badge").value,
+      // imagen se procesa después (Supabase storage)
+    };
+
+    console.log("Datos enviados:", data);
+
+    alert("Producto enviado (falta conectar a Supabase)");
+  }
+</script>
+
+</body>
+</html>
