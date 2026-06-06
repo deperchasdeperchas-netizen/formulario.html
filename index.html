@@ -3,62 +3,94 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carga de productos — EstadosYa</title>
+  <title>Subir productos — EstadosYa</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:Arial,sans-serif;background:#f5f5f5;padding:20px;min-height:100vh}
-    .box{max-width:420px;margin:auto;background:white;padding:24px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
-    h2{font-size:18px;margin-bottom:4px;color:#1c1917}
-    .cliente-label{font-size:13px;color:#52b788;font-weight:600;margin-bottom:20px}
+    .box{max-width:420px;margin:auto;background:white;padding:24px;border-radius:16px;box-shadow:0 2px 16px rgba(0,0,0,.08)}
+    h2{font-size:20px;margin-bottom:4px;color:#1c1917}
+    .cliente-label{font-size:13px;color:#52b788;font-weight:600;margin-bottom:6px}
+    .pack-info{font-size:12px;color:#9c968e;margin-bottom:6px}
+    .progress-wrap{background:#e9e4dc;border-radius:20px;height:8px;margin-bottom:20px;overflow:hidden}
+    .progress-fill{height:8px;border-radius:20px;background:#2d6a4f;transition:width .4s}
+    .progress-fill.warn{background:#f4a261}
+    .progress-fill.full{background:#e63946}
     .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
     .field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#9c968e}
-    input,select{padding:10px 12px;font-size:14px;border:1.5px solid #e9e4dc;border-radius:8px;background:#f9f7f4;color:#1c1917;outline:none;width:100%}
+    input[type=text],input[type=number],select{padding:10px 12px;font-size:14px;border:1.5px solid #e9e4dc;border-radius:8px;background:#f9f7f4;color:#1c1917;outline:none;width:100%}
     input:focus,select:focus{border-color:#2d6a4f}
-    .thumb-wrap{display:none;margin-top:8px}
-    .thumb-wrap img{width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #e9e4dc}
-    button{width:100%;padding:13px;font-size:14px;font-weight:700;border:none;border-radius:8px;background:#2d6a4f;color:white;cursor:pointer;margin-top:8px}
+    /* Foto upload custom */
+    .foto-upload{border:2px dashed #e9e4dc;border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;background:#f9f7f4;position:relative}
+    .foto-upload:hover,.foto-upload.dragover{border-color:#2d6a4f;background:#f0f7f4}
+    .foto-upload input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+    .foto-upload-icon{font-size:32px;margin-bottom:6px}
+    .foto-upload-title{font-size:13px;font-weight:600;color:#1c1917;margin-bottom:2px}
+    .foto-upload-sub{font-size:11px;color:#9c968e}
+    .foto-preview{display:none;margin-top:10px}
+    .foto-preview img{width:80px;height:80px;object-fit:cover;border-radius:8px;border:1.5px solid #e9e4dc}
+    .foto-preview-name{font-size:11px;color:#52b788;margin-top:4px;font-weight:600}
+    button{width:100%;padding:14px;font-size:14px;font-weight:700;border:none;border-radius:10px;background:#2d6a4f;color:white;cursor:pointer;margin-top:4px;transition:all .15s}
     button:hover{background:#1f5038}
     button:disabled{opacity:.5;cursor:default}
-    .msg{margin-top:12px;font-size:13px;text-align:center;padding:10px;border-radius:8px;display:none}
-    .msg.ok{background:#f0f7f4;color:#2d6a4f}
+    .msg{margin-top:12px;font-size:13px;text-align:center;padding:10px 14px;border-radius:8px;display:none}
+    .msg.ok{background:#f0f7f4;color:#2d6a4f;font-weight:600}
     .msg.err{background:#fff5f5;color:#e63946}
-    .upload-status{font-size:12px;color:#9c968e;margin-top:4px}
+    .bloqueado{text-align:center;padding:24px;color:#e63946;font-size:14px;font-weight:600;background:#fff5f5;border-radius:12px;margin-top:12px}
+    .contador{font-size:22px;font-weight:700;color:#2d6a4f;margin-bottom:4px}
   </style>
 </head>
 <body>
 <div class="box">
-  <h2>Subir producto</h2>
+  <h2>Subir productos</h2>
   <div class="cliente-label" id="clienteLabel">Cargando...</div>
-
-  <div class="field">
-    <label>Nombre del producto</label>
-    <input type="text" id="nombre" placeholder="Ej: Vestido floral">
+  <div class="pack-info" id="packInfo"></div>
+  <div class="progress-wrap" id="progressWrap" style="display:none">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
   </div>
 
-  <div class="field">
-    <label>Foto del producto</label>
-    <input type="file" id="imagen" accept="image/*" onchange="previsualizarFoto(this)">
-    <div class="upload-status" id="uploadStatus"></div>
-    <div class="thumb-wrap" id="thumbWrap"><img id="thumbImg" src=""></div>
+  <div id="formWrap">
+    <div class="field">
+      <label>Nombre del producto</label>
+      <input type="text" id="nombre" placeholder="Ej: Vestido floral">
+    </div>
+
+    <div class="field">
+      <label>Foto del producto</label>
+      <div class="foto-upload" id="fotoUpload">
+        <input type="file" id="imagen" accept="image/*" onchange="previsualizarFoto(this)">
+        <div class="foto-upload-icon">📸</div>
+        <div class="foto-upload-title">Tocá para seleccionar foto</div>
+        <div class="foto-upload-sub">JPG, PNG · desde tu galería o cámara</div>
+      </div>
+      <div class="foto-preview" id="fotoPreview">
+        <img id="thumbImg" src="">
+        <div class="foto-preview-name" id="fotoNombre"></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Precio lista</label>
+      <input type="number" id="precio_lista" placeholder="45000">
+    </div>
+
+    <div class="field">
+      <label>Badge (opcional)</label>
+      <select id="badge">
+        <option value="">Sin badge</option>
+        <option value="NUEVO">🟢 Novedad</option>
+        <option value="ULTIMAS">🔴 Últimas unidades</option>
+        <option value="PROMO">⭐ Promo</option>
+      </select>
+    </div>
+
+    <button id="btnEnviar" onclick="enviar()">Enviar producto</button>
+    <div class="msg" id="msg"></div>
   </div>
 
-  <div class="field">
-    <label>Precio lista</label>
-    <input type="number" id="precio_lista" placeholder="45000">
+  <div class="bloqueado" id="bloqueado" style="display:none">
+    🔒 Límite de pack alcanzado<br>
+    <span style="font-size:12px;font-weight:400;color:#9c968e;margin-top:6px;display:block">Contactá a tu proveedor para ampliar el pack</span>
   </div>
-
-  <div class="field">
-    <label>Badge (opcional)</label>
-    <select id="badge">
-      <option value="">Sin badge</option>
-      <option value="NUEVO">🟢 Novedad</option>
-      <option value="ULTIMAS">🔴 Últimas unidades</option>
-      <option value="PROMO">⭐ Promo</option>
-    </select>
-  </div>
-
-  <button id="btnEnviar" onclick="enviar()">Enviar producto</button>
-  <div class="msg" id="msg"></div>
 </div>
 
 <script>
@@ -67,16 +99,54 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const CLOUDINARY_CLOUD = 'danlc50hp';
 const CLOUDINARY_PRESET = 'estadosya';
 
-// Leer clienta desde URL ?c=nombre
+const LIMITES = { basico: 20, activo: 50, full: 100 };
+const NOMBRES_PACK = { basico: 'Pack Básico', activo: 'Pack Activo', full: 'Pack Full' };
+
 const params = new URLSearchParams(window.location.search);
 const clienteNombre = params.get('c') || '';
-const clienteId = params.get('id') || '';
+const clienteId = parseInt(params.get('id')) || 0;
 
-document.getElementById('clienteLabel').textContent = clienteNombre
-  ? '📦 Cargando para: ' + clienteNombre
-  : '⚠️ Link incorrecto — contactá a tu proveedor';
+let clienteData = null;
 
-let fotoUrl = '';
+async function init() {
+  if (!clienteId) {
+    document.getElementById('clienteLabel').textContent = '⚠️ Link incorrecto — contactá a tu proveedor';
+    document.getElementById('clienteLabel').style.color = '#e63946';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/clientas?id=eq.${clienteId}&select=*`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+    });
+    const data = await res.json();
+    if (!data.length) throw new Error('Clienta no encontrada');
+    clienteData = data[0];
+
+    const pack = clienteData.pack || 'basico';
+    const limite = LIMITES[pack];
+    const cargados = clienteData.productos_cargados || 0;
+    const restantes = limite - cargados;
+
+    document.getElementById('clienteLabel').textContent = `📦 Cargando para: ${clienteData.nombre}`;
+    document.getElementById('packInfo').textContent = `${NOMBRES_PACK[pack]} · ${cargados} de ${limite} productos cargados · Quedan ${restantes}`;
+    document.getElementById('progressWrap').style.display = 'block';
+
+    const pct = Math.min((cargados / limite) * 100, 100);
+    const fill = document.getElementById('progressFill');
+    fill.style.width = pct + '%';
+    if (pct >= 100) fill.className = 'progress-fill full';
+    else if (pct >= 80) fill.className = 'progress-fill warn';
+
+    if (cargados >= limite) {
+      document.getElementById('formWrap').style.display = 'none';
+      document.getElementById('bloqueado').style.display = 'block';
+    }
+  } catch(e) {
+    document.getElementById('clienteLabel').textContent = '⚠️ Link incorrecto — contactá a tu proveedor';
+    document.getElementById('clienteLabel').style.color = '#e63946';
+  }
+}
 
 function previsualizarFoto(input) {
   const file = input.files[0];
@@ -84,25 +154,30 @@ function previsualizarFoto(input) {
   const reader = new FileReader();
   reader.onload = e => {
     document.getElementById('thumbImg').src = e.target.result;
-    document.getElementById('thumbWrap').style.display = 'block';
+    document.getElementById('fotoNombre').textContent = '✓ ' + file.name;
+    document.getElementById('fotoPreview').style.display = 'block';
+    document.getElementById('fotoUpload').style.borderColor = '#52b788';
   };
   reader.readAsDataURL(file);
 }
 
 async function subirFoto(file) {
-  document.getElementById('uploadStatus').textContent = 'Subiendo foto...';
   const fd = new FormData();
   fd.append('file', file);
   fd.append('upload_preset', CLOUDINARY_PRESET);
   const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, { method:'POST', body:fd });
   if (!res.ok) throw new Error('Error subiendo foto');
-  const data = await res.json();
-  document.getElementById('uploadStatus').textContent = '✓ Foto lista';
-  return data.secure_url;
+  return (await res.json()).secure_url;
 }
 
 async function enviar() {
-  if (!clienteId) { mostrarMsg('Link incorrecto. Pedile el link correcto a tu proveedor.', 'err'); return; }
+  if (!clienteData) { mostrarMsg('Link incorrecto', 'err'); return; }
+
+  const pack = clienteData.pack || 'basico';
+  const limite = LIMITES[pack];
+  const cargados = clienteData.productos_cargados || 0;
+  if (cargados >= limite) { mostrarMsg('Límite de pack alcanzado', 'err'); return; }
+
   const nombre = document.getElementById('nombre').value.trim();
   const precio_lista = parseFloat(document.getElementById('precio_lista').value) || 0;
   const badge = document.getElementById('badge').value;
@@ -113,39 +188,54 @@ async function enviar() {
   if (!imagenFile) { mostrarMsg('Seleccioná una foto', 'err'); return; }
 
   const btn = document.getElementById('btnEnviar');
-  btn.disabled = true; btn.textContent = 'Enviando...';
+  btn.disabled = true; btn.textContent = 'Subiendo foto...';
 
   try {
-    fotoUrl = await subirFoto(imagenFile);
+    const foto_url = await subirFoto(imagenFile);
+    btn.textContent = 'Guardando...';
 
-    const res = await fetch(SUPABASE_URL + '/rest/v1/productos', {
+    // Insertar producto
+    const resP = await fetch(`${SUPABASE_URL}/rest/v1/productos`, {
       method: 'POST',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify({
-        nombre,
-        foto_url: fotoUrl,
-        precio_lista,
-        clienta_id: parseInt(clienteId),
-        badge: badge || null,
-        estado: 'pendiente'
-      })
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ nombre, foto_url, precio_lista, clienta_id: clienteId, badge: badge || null, estado: 'pendiente' })
+    });
+    if (!resP.ok) throw new Error(await resP.text());
+
+    // Actualizar contador
+    const nuevoCont = cargados + 1;
+    await fetch(`${SUPABASE_URL}/rest/v1/clientas?id=eq.${clienteId}`, {
+      method: 'PATCH',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ productos_cargados: nuevoCont })
     });
 
-    if (!res.ok) throw new Error(await res.text());
+    clienteData.productos_cargados = nuevoCont;
+    const restantes = limite - nuevoCont;
 
-    mostrarMsg('✓ Producto enviado correctamente', 'ok');
+    // Actualizar UI
+    document.getElementById('packInfo').textContent = `${NOMBRES_PACK[pack]} · ${nuevoCont} de ${limite} productos cargados · Quedan ${restantes}`;
+    const pct = Math.min((nuevoCont / limite) * 100, 100);
+    const fill = document.getElementById('progressFill');
+    fill.style.width = pct + '%';
+    if (pct >= 100) fill.className = 'progress-fill full';
+    else if (pct >= 80) fill.className = 'progress-fill warn';
+
+    // Limpiar form
     document.getElementById('nombre').value = '';
     document.getElementById('precio_lista').value = '';
     document.getElementById('badge').value = '';
     document.getElementById('imagen').value = '';
-    document.getElementById('thumbWrap').style.display = 'none';
-    document.getElementById('uploadStatus').textContent = '';
-    fotoUrl = '';
+    document.getElementById('fotoPreview').style.display = 'none';
+    document.getElementById('fotoUpload').style.borderColor = '';
+
+    if (nuevoCont >= limite) {
+      document.getElementById('formWrap').style.display = 'none';
+      document.getElementById('bloqueado').style.display = 'block';
+    } else {
+      mostrarMsg(`✓ Producto enviado · Quedan ${restantes}`, 'ok');
+    }
+
   } catch(e) {
     mostrarMsg('Error: ' + e.message, 'err');
   }
@@ -158,8 +248,20 @@ function mostrarMsg(texto, tipo) {
   el.textContent = texto;
   el.className = 'msg ' + tipo;
   el.style.display = 'block';
-  setTimeout(() => el.style.display = 'none', 4000);
+  setTimeout(() => el.style.display = 'none', 3500);
 }
+
+// Drag & drop
+const zona = document.getElementById('fotoUpload');
+zona.addEventListener('dragover', e => { e.preventDefault(); zona.classList.add('dragover'); });
+zona.addEventListener('dragleave', () => zona.classList.remove('dragover'));
+zona.addEventListener('drop', e => {
+  e.preventDefault(); zona.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) { document.getElementById('imagen').files = e.dataTransfer.files; previsualizarFoto({files:[file]}); }
+});
+
+init();
 </script>
 </body>
 </html>
