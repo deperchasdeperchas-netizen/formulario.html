@@ -11,32 +11,79 @@
     h2{font-size:20px;margin-bottom:4px;color:#1c1917}
     .cliente-label{font-size:13px;color:#52b788;font-weight:600;margin-bottom:6px}
     .pack-info{font-size:12px;color:#9c968e;margin-bottom:6px}
+    
+    /* Progreso del límite del pack */
     .progress-wrap{background:#e9e4dc;border-radius:20px;height:8px;margin-bottom:20px;overflow:hidden}
     .progress-fill{height:8px;border-radius:20px;background:#2d6a4f;transition:width .4s}
     .progress-fill.warn{background:#f4a261}
     .progress-fill.full{background:#e63946}
-    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
-    .field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#9c968e}
+    
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;position:relative}
+    .field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#9c968e;display:flex;justify-content:space-between;align-items:center}
     input[type=text],input[type=number],select{padding:10px 12px;font-size:14px;border:1.5px solid #e9e4dc;border-radius:8px;background:#f9f7f4;color:#1c1917;outline:none;width:100%}
     input:focus,select:focus{border-color:#2d6a4f}
-    /* Foto upload custom */
-    .foto-upload{border:2px dashed #e9e4dc;border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;background:#f9f7f4;position:relative}
+    
+    /* Subida masiva inicial */
+    .foto-upload{border:2px dashed #e9e4dc;border-radius:12px;padding:32px 20px;text-align:center;cursor:pointer;transition:all .2s;background:#f9f7f4;position:relative}
     .foto-upload:hover,.foto-upload.dragover{border-color:#2d6a4f;background:#f0f7f4}
     .foto-upload input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-    .foto-upload-icon{font-size:32px;margin-bottom:6px}
-    .foto-upload-title{font-size:13px;font-weight:600;color:#1c1917;margin-bottom:2px}
+    .foto-upload-icon{font-size:38px;margin-bottom:8px}
+    .foto-upload-title{font-size:13px;font-weight:600;color:#1c1917;margin-bottom:4px}
     .foto-upload-sub{font-size:11px;color:#9c968e}
-    .foto-preview{display:none;margin-top:10px}
-    .foto-preview img{width:80px;height:80px;object-fit:cover;border-radius:8px;border:1.5px solid #e9e4dc}
-    .foto-preview-name{font-size:11px;color:#52b788;margin-top:4px;font-weight:600}
+    
+    /* Workspace de Escaneo */
+    .workspace-wrap{display:none}
+    
+    /* Barras de historias superiores (Progreso) */
+    .progress-segments{display:flex;gap:4px;margin-bottom:14px}
+    .segment{height:4px;flex:1;background:#e9e4dc;border-radius:2px;transition:background 0.3s}
+    .segment.completed{background:#2d6a4f}
+    .segment.current{background:#52b788}
+    
+    .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .card-counter{font-size:13px;font-weight:700;color:#2d6a4f}
+    .btn-cancelar-lote{font-size:11px;color:#e63946;background:none;border:none;cursor:pointer;width:auto;padding:0;font-weight:600}
+    .btn-cancelar-lote:hover{color:#c32f3c}
+    
+    .card-preview-container{width:100%;height:160px;border-radius:12px;overflow:hidden;margin-bottom:14px;border:1.5px solid #e9e4dc}
+    .card-preview-img{width:100%;height:100%;object-fit:contain;background:#f9f7f4}
+    
+    /* Clonador de precio */
+    .btn-clonar{font-size:10px;color:#2d6a4f;text-transform:none;font-weight:700;cursor:pointer;background:none;border:none;padding:2px 6px;border-radius:4px;border:1px solid #2d6a4f;transition:all 0.15s}
+    .btn-clonar:hover{background:#2d6a4f;color:white}
+    
+    /* Minimapa por puntos (Dots) */
+    .minimap-wrapper{margin-top:4px;margin-bottom:14px}
+    .minimap-label{font-size:10px;font-weight:600;text-transform:uppercase;color:#9c968e;margin-bottom:6px;letter-spacing:0.5px}
+    .minimap-dots{display:flex;flex-wrap:wrap;gap:6px}
+    .dot{width:14px;height:14px;border-radius:50%;background:#e9e4dc;cursor:pointer;transition:all 0.15s;border:1.5px solid transparent}
+    .dot.active{border-color:#1c1917;transform:scale(1.15)}
+    .dot.valid{background:#52b788}
+    .dot.partial{background:#f4a261}
+    
+    /* Botonera inferior */
+    .card-nav{display:flex;gap:10px;margin-top:16px}
+    .btn-nav{margin-top:0}
+    .btn-prev{background:#e9e4dc;color:#1c1917;width:30%}
+    .btn-prev:hover{background:#d8d2c4}
+    .btn-prev:disabled{opacity:0.4;cursor:default}
+    .btn-next{flex:1}
+    .btn-finalizar{background:#e63946}
+    .btn-finalizar:hover{background:#c32f3c}
+    
+    /* Progreso de subida global */
+    .upload-progress-wrap{display:none;text-align:center;padding:20px 0}
+    .upload-progress-text{font-size:13px;font-weight:600;color:#1c1917;margin-bottom:12px}
+    
     button{width:100%;padding:14px;font-size:14px;font-weight:700;border:none;border-radius:10px;background:#2d6a4f;color:white;cursor:pointer;margin-top:4px;transition:all .15s}
     button:hover{background:#1f5038}
     button:disabled{opacity:.5;cursor:default}
+    
     .msg{margin-top:12px;font-size:13px;text-align:center;padding:10px 14px;border-radius:8px;display:none}
     .msg.ok{background:#f0f7f4;color:#2d6a4f;font-weight:600}
     .msg.err{background:#fff5f5;color:#e63946}
+    
     .bloqueado{text-align:center;padding:24px;color:#e63946;font-size:14px;font-weight:600;background:#fff5f5;border-radius:12px;margin-top:12px}
-    .contador{font-size:22px;font-weight:700;color:#2d6a4f;margin-bottom:4px}
   </style>
 </head>
 <body>
@@ -48,34 +95,49 @@
     <div class="progress-fill" id="progressFill" style="width:0%"></div>
   </div>
 
-  <div id="formWrap">
+  <!-- PASO 1: Selección Masiva -->
+  <div id="uploadZoneWrap">
+    <div class="field">
+      <label>Subida de fotos</label>
+      <div class="foto-upload" id="fotoUpload">
+        <input type="file" id="imagenes" accept="image/*" multiple onchange="procesarFotos(this)">
+        <div class="foto-upload-icon">📸</div>
+        <div class="foto-upload-title">Seleccionar fotos en lote</div>
+        <div class="foto-upload-sub">Arrastrá o seleccioná desde tu galería</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASO 2: Workspace de Edición (Carrusel + Mejoras UX) -->
+  <div class="workspace-wrap" id="workspaceWrap">
+    <!-- Barras estilo Historias -->
+    <div class="progress-segments" id="progressSegments"></div>
+
+    <div class="card-header">
+      <div class="card-counter" id="cardCounter">Producto 1 de 1</div>
+      <button class="btn-cancelar-lote" onclick="cancelarLote()">Cancelar lote</button>
+    </div>
+
+    <div class="card-preview-container">
+      <img class="card-preview-img" id="cardImg" src="" alt="Vista previa">
+    </div>
+
     <div class="field">
       <label>Nombre del producto</label>
-      <input type="text" id="nombre" placeholder="Ej: Vestido floral">
+      <input type="text" id="cardNombre" placeholder="Ej: Vestido floral" oninput="actualizarDato('nombre', this.value)" enterkeyhint="next">
     </div>
 
     <div class="field">
-      <label>Foto del producto</label>
-      <div class="foto-upload" id="fotoUpload">
-        <input type="file" id="imagen" accept="image/*" onchange="previsualizarFoto(this)">
-        <div class="foto-upload-icon">📸</div>
-        <div class="foto-upload-title">Tocá para seleccionar foto</div>
-        <div class="foto-upload-sub">JPG, PNG · desde tu galería o cámara</div>
-      </div>
-      <div class="foto-preview" id="fotoPreview">
-        <img id="thumbImg" src="">
-        <div class="foto-preview-name" id="fotoNombre"></div>
-      </div>
-    </div>
-
-    <div class="field">
-      <label>Precio lista</label>
-      <input type="number" id="precio_lista" placeholder="45000">
+      <label>
+        Precio lista 
+        <button class="btn-clonar" id="btnClonarPrecio" onclick="clonarPrecio()">Copiar al resto</button>
+      </label>
+      <input type="number" inputmode="decimal" id="cardPrecio" placeholder="45000" oninput="actualizarDato('precio_lista', this.value)" enterkeyhint="done">
     </div>
 
     <div class="field">
       <label>Badge (opcional)</label>
-      <select id="badge">
+      <select id="cardBadge" onchange="actualizarDato('badge', this.value)">
         <option value="">Sin badge</option>
         <option value="NUEVO">🟢 Novedad</option>
         <option value="ULTIMAS">🔴 Últimas unidades</option>
@@ -83,9 +145,28 @@
       </select>
     </div>
 
-    <button id="btnEnviar" onclick="enviar()">Enviar producto</button>
-    <div class="msg" id="msg"></div>
+    <!-- Minimapa por puntos (Dots) -->
+    <div class="minimap-wrapper">
+      <div class="minimap-label">Mapa de carga rápida:</div>
+      <div class="minimap-dots" id="minimapContainer"></div>
+    </div>
+
+    <!-- Navegación -->
+    <div class="card-nav">
+      <button class="btn-prev btn-nav" id="btnPrev" onclick="tarjetaAnterior()">◀ Atrás</button>
+      <button class="btn-next btn-nav" id="btnNext" onclick="tarjetaSiguiente()">Siguiente ➔</button>
+    </div>
   </div>
+
+  <!-- PASO 3: Progreso de subida activa -->
+  <div class="upload-progress-wrap" id="uploadProgressWrap">
+    <div class="upload-progress-text" id="progressUploadText">Comprimiendo y subiendo lote...</div>
+    <div class="progress-wrap">
+      <div class="progress-fill" id="progressUploadBar" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="msg" id="msg"></div>
 
   <div class="bloqueado" id="bloqueado" style="display:none">
     🔒 Límite de pack alcanzado<br>
@@ -103,10 +184,11 @@ const LIMITES = { basico: 20, activo: 50, full: 100 };
 const NOMBRES_PACK = { basico: 'Pack Básico', activo: 'Pack Activo', full: 'Pack Full' };
 
 const params = new URLSearchParams(window.location.search);
-const clienteNombre = params.get('c') || '';
 const clienteId = parseInt(params.get('id')) || 0;
 
 let clienteData = null;
+let listaProductos = [];
+let indexActual = 0;
 
 async function init() {
   if (!clienteId) {
@@ -123,124 +205,366 @@ async function init() {
     if (!data.length) throw new Error('Clienta no encontrada');
     clienteData = data[0];
 
-    const pack = clienteData.pack || 'basico';
-    const limite = LIMITES[pack];
-    const cargados = clienteData.productos_cargados || 0;
-    const restantes = limite - cargados;
-
-    document.getElementById('clienteLabel').textContent = `📦 Cargando para: ${clienteData.nombre}`;
-    document.getElementById('packInfo').textContent = `${NOMBRES_PACK[pack]} · ${cargados} de ${limite} productos cargados · Quedan ${restantes}`;
-    document.getElementById('progressWrap').style.display = 'block';
-
-    const pct = Math.min((cargados / limite) * 100, 100);
-    const fill = document.getElementById('progressFill');
-    fill.style.width = pct + '%';
-    if (pct >= 100) fill.className = 'progress-fill full';
-    else if (pct >= 80) fill.className = 'progress-fill warn';
-
-    if (cargados >= limite) {
-      document.getElementById('formWrap').style.display = 'none';
-      document.getElementById('bloqueado').style.display = 'block';
-    }
+    actualizarContadoresUI();
   } catch(e) {
     document.getElementById('clienteLabel').textContent = '⚠️ Link incorrecto — contactá a tu proveedor';
     document.getElementById('clienteLabel').style.color = '#e63946';
   }
 }
 
-function previsualizarFoto(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    document.getElementById('thumbImg').src = e.target.result;
-    document.getElementById('fotoNombre').textContent = '✓ ' + file.name;
-    document.getElementById('fotoPreview').style.display = 'block';
-    document.getElementById('fotoUpload').style.borderColor = '#52b788';
-  };
-  reader.readAsDataURL(file);
-}
-
-async function subirFoto(file) {
-  const fd = new FormData();
-  fd.append('file', file);
-  fd.append('upload_preset', CLOUDINARY_PRESET);
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, { method:'POST', body:fd });
-  if (!res.ok) throw new Error('Error subiendo foto');
-  return (await res.json()).secure_url;
-}
-
-async function enviar() {
-  if (!clienteData) { mostrarMsg('Link incorrecto', 'err'); return; }
-
+function actualizarContadoresUI() {
   const pack = clienteData.pack || 'basico';
   const limite = LIMITES[pack];
   const cargados = clienteData.productos_cargados || 0;
-  if (cargados >= limite) { mostrarMsg('Límite de pack alcanzado', 'err'); return; }
+  const restantes = limite - cargados;
 
-  const nombre = document.getElementById('nombre').value.trim();
-  const precio_lista = parseFloat(document.getElementById('precio_lista').value) || 0;
-  const badge = document.getElementById('badge').value;
-  const imagenFile = document.getElementById('imagen').files[0];
+  document.getElementById('clienteLabel').textContent = `📦 Cargando para: ${clienteData.nombre}`;
+  document.getElementById('packInfo').textContent = `${NOMBRES_PACK[pack]} · ${cargados} de ${limite} productos cargados · Quedan ${restantes}`;
+  document.getElementById('progressWrap').style.display = 'block';
 
-  if (!nombre) { mostrarMsg('Completá el nombre del producto', 'err'); return; }
-  if (!precio_lista) { mostrarMsg('Completá el precio lista', 'err'); return; }
-  if (!imagenFile) { mostrarMsg('Seleccioná una foto', 'err'); return; }
+  const pct = Math.min((cargados / limite) * 100, 100);
+  const fill = document.getElementById('progressFill');
+  fill.style.width = pct + '%';
+  if (pct >= 100) fill.className = 'progress-fill full';
+  else if (pct >= 80) fill.className = 'progress-fill warn';
 
-  const btn = document.getElementById('btnEnviar');
-  btn.disabled = true; btn.textContent = 'Subiendo foto...';
+  if (cargados >= limite) {
+    document.getElementById('uploadZoneWrap').style.display = 'none';
+    document.getElementById('workspaceWrap').style.display = 'none';
+    document.getElementById('bloqueado').style.display = 'block';
+  } else {
+    document.getElementById('bloqueado').style.display = 'none';
+  }
+}
 
-  try {
-    const foto_url = await subirFoto(imagenFile);
-    btn.textContent = 'Guardando...';
+// Configuración de eventos de salto con teclado nativo móvil
+document.getElementById('cardNombre').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    document.getElementById('cardPrecio').focus();
+  }
+});
 
-    // Insertar producto
-    const resP = await fetch(`${SUPABASE_URL}/rest/v1/productos`, {
-      method: 'POST',
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ nombre, foto_url, precio_lista, clienta_id: clienteId, badge: badge || null, estado: 'pendiente' })
-    });
-    if (!resP.ok) throw new Error(await resP.text());
+document.getElementById('cardPrecio').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    document.getElementById('cardPrecio').blur();
+    tarjetaSiguiente();
+  }
+});
 
-    // Actualizar contador
-    const nuevoCont = cargados + 1;
-    await fetch(`${SUPABASE_URL}/rest/v1/clientas?id=eq.${clienteId}`, {
-      method: 'PATCH',
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ productos_cargados: nuevoCont })
-    });
+function procesarFotos(input) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
 
-    clienteData.productos_cargados = nuevoCont;
-    const restantes = limite - nuevoCont;
+  const pack = clienteData ? (clienteData.pack || 'basico') : 'basico';
+  const limite = LIMITES[pack];
+  const cargados = clienteData ? (clienteData.productos_cargados || 0) : 0;
+  const restantes = limite - cargados;
 
-    // Actualizar UI
-    document.getElementById('packInfo').textContent = `${NOMBRES_PACK[pack]} · ${nuevoCont} de ${limite} productos cargados · Quedan ${restantes}`;
-    const pct = Math.min((nuevoCont / limite) * 100, 100);
-    const fill = document.getElementById('progressFill');
-    fill.style.width = pct + '%';
-    if (pct >= 100) fill.className = 'progress-fill full';
-    else if (pct >= 80) fill.className = 'progress-fill warn';
+  let archivosAProcesar = files;
 
-    // Limpiar form
-    document.getElementById('nombre').value = '';
-    document.getElementById('precio_lista').value = '';
-    document.getElementById('badge').value = '';
-    document.getElementById('imagen').value = '';
-    document.getElementById('fotoPreview').style.display = 'none';
-    document.getElementById('fotoUpload').style.borderColor = '';
-
-    if (nuevoCont >= limite) {
-      document.getElementById('formWrap').style.display = 'none';
-      document.getElementById('bloqueado').style.display = 'block';
-    } else {
-      mostrarMsg(`✓ Producto enviado · Quedan ${restantes}`, 'ok');
-    }
-
-  } catch(e) {
-    mostrarMsg('Error: ' + e.message, 'err');
+  if (files.length > restantes) {
+    mostrarMsg(`Atención: Solo podés subir un máximo de ${restantes} productos debido a tu pack.`, 'err');
+    archivosAProcesar = files.slice(0, restantes);
   }
 
-  btn.disabled = false; btn.textContent = 'Enviar producto';
+  listaProductos = archivosAProcesar.map((file) => {
+    let nombreSugerido = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+    nombreSugerido = nombreSugerido.replace(/[-_]/g, ' ');
+    nombreSugerido = nombreSugerido.charAt(0).toUpperCase() + nombreSugerido.slice(1);
+
+    return {
+      file: file,
+      tempUrl: URL.createObjectURL(file),
+      nombre: nombreSugerido,
+      precio_lista: '',
+      badge: ''
+    };
+  });
+
+  indexActual = 0;
+  input.value = '';
+  mostrarWorkspace();
+}
+
+function mostrarWorkspace() {
+  document.getElementById('uploadZoneWrap').style.display = 'none';
+  document.getElementById('workspaceWrap').style.display = 'block';
+  cargarTarjeta(0);
+}
+
+function cancelarLote() {
+  if (confirm('¿Descartar fotos actuales y volver a empezar?')) {
+    listaProductos.forEach(p => URL.revokeObjectURL(p.tempUrl));
+    listaProductos = [];
+    document.getElementById('workspaceWrap').style.display = 'none';
+    document.getElementById('uploadZoneWrap').style.display = 'block';
+  }
+}
+
+function cargarTarjeta(idx) {
+  if (idx < 0 || idx >= listaProductos.length) return;
+  indexActual = idx;
+
+  const item = listaProductos[indexActual];
+
+  document.getElementById('cardCounter').textContent = `Producto ${indexActual + 1} de ${listaProductos.length}`;
+  document.getElementById('cardImg').src = item.tempUrl;
+  document.getElementById('cardNombre').value = item.nombre;
+  document.getElementById('cardPrecio').value = item.precio_lista;
+  document.getElementById('cardBadge').value = item.badge;
+
+  document.getElementById('btnPrev').disabled = (indexActual === 0);
+
+  const btnNext = document.getElementById('btnNext');
+  if (indexActual === listaProductos.length - 1) {
+    btnNext.textContent = 'Subir todo el lote 🚀';
+    btnNext.className = 'btn-next btn-nav btn-finalizar';
+  } else {
+    btnNext.textContent = 'Siguiente ➔';
+    btnNext.className = 'btn-next btn-nav';
+  }
+
+  actualizarMinimapa();
+  actualizarSegmentos();
+
+  // Auto-foco inteligente si el campo está vacío
+  setTimeout(() => {
+    const inputNombre = document.getElementById('cardNombre');
+    if (!inputNombre.value.trim()) {
+      inputNombre.focus();
+    }
+  }, 50);
+}
+
+function actualizarDato(campo, valor) {
+  if (listaProductos[indexActual]) {
+    listaProductos[indexActual][campo] = valor;
+    actualizarMinimapa();
+  }
+}
+
+// Clonador de precio
+function clonarPrecio() {
+  const precioActual = document.getElementById('cardPrecio').value;
+  if (!precioActual || parseFloat(precioActual) <= 0) {
+    mostrarMsg('Escribí un precio válido primero', 'err');
+    document.getElementById('cardPrecio').focus();
+    return;
+  }
+  
+  for (let i = indexActual + 1; i < listaProductos.length; i++) {
+    listaProductos[i].precio_lista = precioActual;
+  }
+  actualizarMinimapa();
+  mostrarMsg('Precio copiado a los siguientes productos', 'ok');
+}
+
+// Segmentos estilo Instagram Stories
+function actualizarSegmentos() {
+  const container = document.getElementById('progressSegments');
+  container.innerHTML = '';
+  listaProductos.forEach((_, idx) => {
+    const segment = document.createElement('div');
+    segment.className = 'segment';
+    if (idx < indexActual) {
+      segment.classList.add('completed');
+    } else if (idx === indexActual) {
+      segment.classList.add('current');
+    }
+    container.appendChild(segment);
+  });
+}
+
+// Minimapa táctil interactivo
+function actualizarMinimapa() {
+  const container = document.getElementById('minimapContainer');
+  container.innerHTML = '';
+  listaProductos.forEach((item, idx) => {
+    const dot = document.createElement('div');
+    dot.className = 'dot';
+    if (idx === indexActual) dot.classList.add('active');
+
+    const tieneNombre = item.nombre.trim() !== '';
+    const tienePrecio = item.precio_lista !== '' && parseFloat(item.precio_lista) > 0;
+
+    if (tieneNombre && tienePrecio) {
+      dot.classList.add('valid');
+    } else if (tieneNombre || tienePrecio) {
+      dot.classList.add('partial');
+    }
+
+    dot.onclick = () => cargarTarjeta(idx);
+    container.appendChild(dot);
+  });
+}
+
+function tarjetaAnterior() {
+  if (indexActual > 0) {
+    cargarTarjeta(indexActual - 1);
+  }
+}
+
+function tarjetaSiguiente() {
+  const item = listaProductos[indexActual];
+  if (!item.nombre.trim()) {
+    mostrarMsg('Completá el nombre del producto actual', 'err');
+    document.getElementById('cardNombre').focus();
+    return;
+  }
+  if (!item.precio_lista || parseFloat(item.precio_lista) <= 0) {
+    mostrarMsg('Completá el precio del producto actual', 'err');
+    document.getElementById('cardPrecio').focus();
+    return;
+  }
+
+  if (indexActual < listaProductos.length - 1) {
+    cargarTarjeta(indexActual + 1);
+  } else {
+    enviarLote();
+  }
+}
+
+// Redimensionado/Compresión de imagen en el cliente para ahorro de datos
+function comprimirImagen(file) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const MAX_SIZE = 1000; // Calidad óptima para catálogo sin sobrecargar peso
+
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > MAX_SIZE) {
+          height *= MAX_SIZE / width;
+          width = MAX_SIZE;
+        }
+      } else {
+        if (height > MAX_SIZE) {
+          width *= MAX_SIZE / height;
+          height = MAX_SIZE;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      canvas.toBlob((blob) => {
+        URL.revokeObjectURL(img.src);
+        resolve(blob || file);
+      }, 'image/jpeg', 0.80);
+    };
+    img.onerror = () => resolve(file); // Si hay error, envía original como respaldo
+  });
+}
+
+async function subirFoto(compressedBlob) {
+  const fd = new FormData();
+  fd.append('file', compressedBlob);
+  fd.append('upload_preset', CLOUDINARY_PRESET);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, { method:'POST', body:fd });
+  if (!res.ok) throw new Error('Error subiendo foto a la nube');
+  return (await res.json()).secure_url;
+}
+
+async function enviarLote() {
+  if (!clienteData) return;
+
+  // Validación colectiva final preventiva
+  for (let i = 0; i < listaProductos.length; i++) {
+    const p = listaProductos[i];
+    if (!p.nombre.trim() || !p.precio_lista || parseFloat(p.precio_lista) <= 0) {
+      cargarTarjeta(i);
+      mostrarMsg(`Completá los datos del producto ${i + 1}`, 'err');
+      return;
+    }
+  }
+
+  document.getElementById('workspaceWrap').style.display = 'none';
+  const progressWrap = document.getElementById('uploadProgressWrap');
+  progressWrap.style.display = 'block';
+
+  const progressText = document.getElementById('progressUploadText');
+  const progressBar = document.getElementById('progressUploadBar');
+
+  let exitos = 0;
+  const total = listaProductos.length;
+  const cargadosIniciales = clienteData.productos_cargados || 0;
+
+  try {
+    for (let i = 0; i < total; i++) {
+      const item = listaProductos[i];
+      
+      progressBar.style.width = `${((i) / total) * 100}%`;
+      progressText.textContent = `Optimizando y subiendo ${i + 1} de ${total}: ${item.nombre}`;
+
+      // 1. Compresión instantánea en cliente
+      const blobCompreso = await comprimirImagen(item.file);
+
+      // 2. Subida rápida
+      const foto_url = await subirFoto(blobCompreso);
+
+      // 3. Envío de datos a Supabase
+      const resP = await fetch(`${SUPABASE_URL}/rest/v1/productos`, {
+        method: 'POST',
+        headers: { 
+          'apikey': SUPABASE_KEY, 
+          'Authorization': 'Bearer ' + SUPABASE_KEY, 
+          'Content-Type': 'application/json', 
+          'Prefer': 'return=minimal' 
+        },
+        body: JSON.stringify({ 
+          nombre: item.nombre, 
+          foto_url, 
+          precio_lista: parseFloat(item.precio_lista), 
+          clienta_id: clienteId, 
+          badge: item.badge || null, 
+          estado: 'pendiente' 
+        })
+      });
+      if (!resP.ok) throw new Error(`Fallo de guardado en base de datos`);
+
+      exitos++;
+    }
+
+    // Actualización de contadores globales
+    const nuevoTotal = cargadosIniciales + exitos;
+    await fetch(`${SUPABASE_URL}/rest/v1/clientas?id=eq.${clienteId}`, {
+      method: 'PATCH',
+      headers: { 
+        'apikey': SUPABASE_KEY, 
+        'Authorization': 'Bearer ' + SUPABASE_KEY, 
+        'Content-Type': 'application/json', 
+        'Prefer': 'return=minimal' 
+      },
+      body: JSON.stringify({ productos_cargados: nuevoTotal })
+    });
+
+    progressBar.style.width = '100%';
+    progressText.textContent = '¡Lote completado con éxito!';
+    
+    clienteData.productos_cargados = nuevoTotal;
+    actualizarContadoresUI();
+
+    setTimeout(() => {
+      listaProductos.forEach(p => URL.revokeObjectURL(p.tempUrl));
+      listaProductos = [];
+      progressWrap.style.display = 'none';
+      document.getElementById('uploadZoneWrap').style.display = 'block';
+      mostrarMsg(`¡Se cargaron los ${exitos} productos con éxito!`, 'ok');
+    }, 2000);
+
+  } catch(e) {
+    progressWrap.style.display = 'none';
+    document.getElementById('workspaceWrap').style.display = 'block';
+    mostrarMsg(`Error procesando envío: ${e.message}`, 'err');
+  }
 }
 
 function mostrarMsg(texto, tipo) {
@@ -248,17 +572,20 @@ function mostrarMsg(texto, tipo) {
   el.textContent = texto;
   el.className = 'msg ' + tipo;
   el.style.display = 'block';
-  setTimeout(() => el.style.display = 'none', 3500);
+  setTimeout(() => el.style.display = 'none', 3800);
 }
 
-// Drag & drop
 const zona = document.getElementById('fotoUpload');
 zona.addEventListener('dragover', e => { e.preventDefault(); zona.classList.add('dragover'); });
 zona.addEventListener('dragleave', () => zona.classList.remove('dragover'));
 zona.addEventListener('drop', e => {
   e.preventDefault(); zona.classList.remove('dragover');
-  const file = e.dataTransfer.files[0];
-  if (file) { document.getElementById('imagen').files = e.dataTransfer.files; previsualizarFoto({files:[file]}); }
+  const files = e.dataTransfer.files;
+  if (files.length) {
+    const input = document.getElementById('imagenes');
+    input.files = files;
+    procesarFotos(input);
+  }
 });
 
 init();
