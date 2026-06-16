@@ -42,6 +42,9 @@
     
     .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
     .card-counter{font-size:13px;font-weight:700;color:#2d6a4f}
+    
+    .btn-agregar-mas{font-size:11px;color:#2d6a4f;background:none;border:none;cursor:pointer;width:auto;padding:0;font-weight:700}
+    .btn-agregar-mas:hover{color:#1f5038}
     .btn-cancelar-lote{font-size:11px;color:#e63946;background:none;border:none;cursor:pointer;width:auto;padding:0;font-weight:600}
     .btn-cancelar-lote:hover{color:#c32f3c}
     
@@ -64,9 +67,7 @@
     /* Botonera inferior */
     .card-nav{display:flex;gap:10px;margin-top:16px}
     .btn-nav{margin-top:0}
-    .btn-prev{background:#e9e4dc;color:#1c1917;width:30%}
-    .btn-prev:hover{background:#d8d2c4}
-    .btn-prev:disabled{opacity:0.4;cursor:default}
+    .btn-prev{background:#e9e4dc;color:#1c1917;width:35%;transition: background 0.2s, color 0.2s}
     .btn-next{flex:1}
     .btn-finalizar{background:#e63946}
     .btn-finalizar:hover{background:#c32f3c}
@@ -115,7 +116,12 @@
 
     <div class="card-header">
       <div class="card-counter" id="cardCounter">Producto 1 de 1</div>
-      <button class="btn-cancelar-lote" onclick="cancelarLote()">Cancelar lote</button>
+      <div style="display:flex; gap:12px; align-items:center;">
+        <!-- Input oculto para anexar fotos sobre la marcha -->
+        <input type="file" id="inputAnexarFotos" accept="image/*" multiple style="display:none" onchange="anexarFotosLote(this)">
+        <button class="btn-agregar-mas" onclick="document.getElementById('inputAnexarFotos').click()">＋ Añadir fotos</button>
+        <button class="btn-cancelar-lote" onclick="cancelarLote()">Cancelar</button>
+      </div>
     </div>
 
     <div class="card-preview-container">
@@ -135,16 +141,6 @@
       <input type="number" inputmode="decimal" id="cardPrecio" placeholder="45000" oninput="actualizarDato('precio_lista', this.value)" enterkeyhint="done">
     </div>
 
-    <div class="field">
-      <label>Badge (opcional)</label>
-      <select id="cardBadge" onchange="actualizarDato('badge', this.value)">
-        <option value="">Sin badge</option>
-        <option value="NUEVO">🟢 Novedad</option>
-        <option value="ULTIMAS">🔴 Últimas unidades</option>
-        <option value="PROMO">⭐ Promo</option>
-      </select>
-    </div>
-
     <!-- Minimapa por puntos (Dots) -->
     <div class="minimap-wrapper">
       <div class="minimap-label">Mapa de carga rápida:</div>
@@ -153,7 +149,7 @@
 
     <!-- Navegación -->
     <div class="card-nav">
-      <button class="btn-prev btn-nav" id="btnPrev" onclick="tarjetaAnterior()">◀ Atrás</button>
+      <button class="btn-prev btn-nav" id="btnPrev" onclick="clickBotonAtras()">◀ Cambiar</button>
       <button class="btn-next btn-nav" id="btnNext" onclick="tarjetaSiguiente()">Siguiente ➔</button>
     </div>
   </div>
@@ -278,14 +274,55 @@ function procesarFotos(input) {
       file: file,
       tempUrl: URL.createObjectURL(file),
       nombre: nombreSugerido,
-      precio_lista: '',
-      badge: ''
+      precio_lista: ''
     };
   });
 
   indexActual = 0;
   input.value = '';
   mostrarWorkspace();
+}
+
+// Anexa nuevas fotos al final del lote actual conservando lo que ya está escrito
+function anexarFotosLote(input) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+
+  const pack = clienteData ? (clienteData.pack || 'basico') : 'basico';
+  const limite = LIMITES[pack];
+  const cargados = clienteData ? (clienteData.productos_cargados || 0) : 0;
+  const restantes = limite - cargados;
+
+  // Calculamos espacio real disponible teniendo en cuenta el lote actual editándose
+  const disponibles = restantes - listaProductos.length;
+
+  let archivosAAnexar = files;
+  if (files.length > disponibles) {
+    mostrarMsg(`Solo podés añadir un máximo de ${disponibles} fotos adicionales debido a tu pack.`, 'err');
+    archivosAAnexar = files.slice(0, disponibles);
+  }
+
+  const nuevosProductos = archivosAAnexar.map((file) => {
+    let nombreSugerido = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+    nombreSugerido = nombreSugerido.replace(/[-_]/g, ' ');
+    nombreSugerido = nombreSugerido.charAt(0).toUpperCase() + nombreSugerido.slice(1);
+
+    return {
+      file: file,
+      tempUrl: URL.createObjectURL(file),
+      nombre: nombreSugerido,
+      precio_lista: ''
+    };
+  });
+
+  const antiguoLargo = listaProductos.length;
+  listaProductos = [...listaProductos, ...nuevosProductos];
+  
+  input.value = ''; // Limpiar input para futuras cargas
+  
+  // Posicionamos a la clienta en la primera tarjeta de las nuevas añadidas
+  cargarTarjeta(antiguoLargo);
+  mostrarMsg(`Se agregaron ${nuevosProductos.length} fotos al lote`, 'ok');
 }
 
 function mostrarWorkspace() {
@@ -295,7 +332,7 @@ function mostrarWorkspace() {
 }
 
 function cancelarLote() {
-  if (confirm('¿Descartar fotos actuales y volver a empezar?')) {
+  if (confirm('¿Descartar fotos actuales y volver a la pantalla de selección?')) {
     listaProductos.forEach(p => URL.revokeObjectURL(p.tempUrl));
     listaProductos = [];
     document.getElementById('workspaceWrap').style.display = 'none';
@@ -313,9 +350,18 @@ function cargarTarjeta(idx) {
   document.getElementById('cardImg').src = item.tempUrl;
   document.getElementById('cardNombre').value = item.nombre;
   document.getElementById('cardPrecio').value = item.precio_lista;
-  document.getElementById('cardBadge').value = item.badge;
 
-  document.getElementById('btnPrev').disabled = (indexActual === 0);
+  // Lógica dinámica del botón de retroceso (Atrás vs Cambiar fotos)
+  const btnPrev = document.getElementById('btnPrev');
+  if (indexActual === 0) {
+    btnPrev.textContent = '◀ Cambiar fotos';
+    btnPrev.style.background = '#f4a261'; 
+    btnPrev.style.color = 'white';
+  } else {
+    btnPrev.textContent = '◀ Atrás';
+    btnPrev.style.background = '#e9e4dc'; 
+    btnPrev.style.color = '#1c1917';
+  }
 
   const btnNext = document.getElementById('btnNext');
   if (indexActual === listaProductos.length - 1) {
@@ -336,6 +382,14 @@ function cargarTarjeta(idx) {
       inputNombre.focus();
     }
   }, 50);
+}
+
+function clickBotonAtras() {
+  if (indexActual > 0) {
+    tarjetaAnterior();
+  } else {
+    cancelarLote();
+  }
 }
 
 function actualizarDato(campo, valor) {
@@ -434,7 +488,7 @@ function comprimirImagen(file) {
     img.onload = () => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      const MAX_SIZE = 1000; // Calidad óptima para catálogo sin sobrecargar peso
+      const MAX_SIZE = 1000; 
 
       let width = img.width;
       let height = img.height;
@@ -460,7 +514,7 @@ function comprimirImagen(file) {
         resolve(blob || file);
       }, 'image/jpeg', 0.80);
     };
-    img.onerror = () => resolve(file); // Si hay error, envía original como respaldo
+    img.onerror = () => resolve(file); 
   });
 }
 
@@ -524,7 +578,6 @@ async function enviarLote() {
           foto_url, 
           precio_lista: parseFloat(item.precio_lista), 
           clienta_id: clienteId, 
-          badge: item.badge || null, 
           estado: 'pendiente' 
         })
       });
