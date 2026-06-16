@@ -67,7 +67,7 @@
     /* Botonera inferior */
     .card-nav{display:flex;gap:10px;margin-top:16px}
     .btn-nav{margin-top:0}
-    .btn-prev{background:#e9e4dc;color:#1c1917;width:35%;transition: background 0.2s, color 0.2s}
+    .btn-prev{background:#2d6a4f;color:white;width:40%;transition: all 0.2s}
     .btn-next{flex:1}
     .btn-finalizar{background:#e63946}
     .btn-finalizar:hover{background:#c32f3c}
@@ -149,7 +149,8 @@
 
     <!-- Navegación -->
     <div class="card-nav">
-      <button class="btn-prev btn-nav" id="btnPrev" onclick="clickBotonAtras()">◀ Cambiar</button>
+      <!-- Este botón muta dinámicamente: añade fotos si es el primer elemento, o retrocede si es cualquier otro -->
+      <button class="btn-prev btn-nav" id="btnPrev" onclick="clickBotonAtras()">＋ Añadir más</button>
       <button class="btn-next btn-nav" id="btnNext" onclick="tarjetaSiguiente()">Siguiente ➔</button>
     </div>
   </div>
@@ -351,11 +352,11 @@ function cargarTarjeta(idx) {
   document.getElementById('cardNombre').value = item.nombre;
   document.getElementById('cardPrecio').value = item.precio_lista;
 
-  // Lógica dinámica del botón de retroceso (Atrás vs Cambiar fotos)
+  // Lógica dinámica del botón de retroceso (Atrás vs Añadir más no destructivo)
   const btnPrev = document.getElementById('btnPrev');
   if (indexActual === 0) {
-    btnPrev.textContent = '◀ Cambiar fotos';
-    btnPrev.style.background = '#f4a261'; 
+    btnPrev.textContent = '＋ Añadir más';
+    btnPrev.style.background = '#2d6a4f'; 
     btnPrev.style.color = 'white';
   } else {
     btnPrev.textContent = '◀ Atrás';
@@ -365,7 +366,8 @@ function cargarTarjeta(idx) {
 
   const btnNext = document.getElementById('btnNext');
   if (indexActual === listaProductos.length - 1) {
-    btnNext.textContent = 'Subir todo el lote 🚀';
+    const textoSubida = listaProductos.length === 1 ? 'Subir producto 🚀' : `Subir lote (${listaProductos.length}) 🚀`;
+    btnNext.textContent = textoSubida;
     btnNext.className = 'btn-next btn-nav btn-finalizar';
   } else {
     btnNext.textContent = 'Siguiente ➔';
@@ -388,7 +390,8 @@ function clickBotonAtras() {
   if (indexActual > 0) {
     tarjetaAnterior();
   } else {
-    cancelarLote();
+    // En el Producto 1, en lugar de borrar todo, abrimos el selector de fotos para sumar más de forma no destructiva
+    document.getElementById('inputAnexarFotos').click();
   }
 }
 
