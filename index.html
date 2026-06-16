@@ -75,17 +75,20 @@
     /* PANTALLA DE REVISIÓN EN LISTA */
     .review-wrap{display:none}
     .review-list{max-height:320px;overflow-y:auto;border:1.5px solid #e9e4dc;border-radius:12px;padding:8px;background:#f9f7f4;margin-bottom:16px}
-    .review-item{display:flex;align-items:center;gap:12px;padding:8px;background:white;border-radius:8px;margin-bottom:8px;border:1px solid #e9e4dc;cursor:pointer;transition:background 0.15s}
+    .review-item{display:flex;align-items:center;gap:12px;padding:8px;background:white;border-radius:8px;margin-bottom:8px;border:1.5px solid #e9e4dc;cursor:pointer;transition:background 0.15s}
     .review-item:hover{background:#f0f7f4}
     .review-item-img{width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid #e9e4dc}
     .review-item-info{flex:1;min-width:0}
     .review-item-name{font-size:13px;font-weight:600;color:#1c1917;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .review-item-price{font-size:12px;font-weight:700;color:#2d6a4f;margin-top:2px}
     .review-item-edit{font-size:11px;color:#9c968e;font-weight:600}
+    .btn-eliminar-item{background:none;border:none;color:#e63946;font-size:16px;cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;transition:transform 0.1s}
+    .btn-eliminar-item:active{transform:scale(0.85)}
     
     /* Progreso de subida global */
     .upload-progress-wrap{display:none;text-align:center;padding:20px 0}
     .upload-progress-text{font-size:13px;font-weight:600;color:#1c1917;margin-bottom:12px}
+    .keep-awake-warning{font-size:11px;color:#f4a261;font-weight:700;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:4px}
     
     button{width:100%;padding:14px;font-size:14px;font-weight:700;border:none;border-radius:10px;background:#2d6a4f;color:white;cursor:pointer;margin-top:4px;transition:all .15s}
     button:hover{background:#1f5038}
@@ -160,15 +163,16 @@
 
     <!-- Navegación -->
     <div class="card-nav">
+      <!-- Este botón muta dinámicamente: añade fotos si es el primer elemento, o retrocede si es cualquier otro -->
       <button class="btn-prev btn-nav" id="btnPrev" onclick="clickBotonAtras()">＋ Añadir más</button>
       <button class="btn-next btn-nav" id="btnNext" onclick="tarjetaSiguiente()">Siguiente ➔</button>
     </div>
   </div>
 
-  <!-- PASO 3: Nueva Pantalla de Revisión -->
+  <!-- PASO 3: Pantalla de Revisión -->
   <div class="review-wrap" id="reviewWrap">
     <h3 style="font-size: 16px; margin-bottom: 4px; color: #1c1917">Revisar fotos antes de enviar</h3>
-    <p style="font-size: 12px; color: #9c968e; margin-bottom: 14px">Tocá cualquier producto de la lista si deseás volver a editarlo o corregir su precio.</p>
+    <p style="font-size: 12px; color: #9c968e; margin-bottom: 14px">Tocá cualquier producto de la lista para volver a editarlo o descartalo con el tacho de basura.</p>
     
     <div class="review-list" id="reviewList"></div>
 
@@ -183,6 +187,9 @@
     <div class="upload-progress-text" id="progressUploadText">Comprimiendo y subiendo lote...</div>
     <div class="progress-wrap">
       <div class="progress-fill" id="progressUploadBar" style="width:0%"></div>
+    </div>
+    <div class="keep-awake-warning">
+      ⚠️ No bloquees ni apagues la pantalla hasta terminar
     </div>
   </div>
 
@@ -499,13 +506,18 @@ function tarjetaSiguiente() {
   }
 }
 
-// LÓGICA DE LA PANTALLA DE REVISIÓN
+// Detector inteligente de nombres generados automáticamente por el sistema o celular
+function detectarNombreSistema(nombre) {
+  const patron = /(opera|instantanea|screenshot|img_|whatsapp|captura|pantalla|image|camera|photo)/i;
+  return patron.test(nombre);
+}
+
+// PANTALLA DE REVISIÓN
 function abrirPantallaRevision() {
   document.getElementById('workspaceWrap').style.display = 'none';
   const reviewWrap = document.getElementById('reviewWrap');
   reviewWrap.style.display = 'block';
 
-  // Cambiar título del botón según cantidad de fotos
   const btnSubir = document.getElementById('btnConfirmarYSubir');
   btnSubir.textContent = listaProductos.length === 1 ? 'Confirmar y subir producto ✅' : `Confirmar y subir lote (${listaProductos.length}) ✅`;
 
@@ -515,18 +527,52 @@ function abrirPantallaRevision() {
   listaProductos.forEach((item, idx) => {
     const div = document.createElement('div');
     div.className = 'review-item';
-    div.onclick = () => irATarjetaDesdeRevision(idx);
+    
+    // Al tocar el elemento se edita, excepto si el toque fue en el tacho de basura
+    div.onclick = (e) => {
+      if (e.target.closest('.btn-eliminar-item')) return;
+      irATarjetaDesdeRevision(idx);
+    };
+
+    const esNombreSucio = detectarNombreSistema(item.nombre);
+    if (esNombreSucio) {
+      div.style.borderColor = '#f4a261'; // Borde indicador naranja
+      div.style.background = '#fffaf0';  // Fondo claro de alerta
+    }
 
     div.innerHTML = `
       <img src="${item.tempUrl}" class="review-item-img">
       <div class="review-item-info">
-        <div class="review-item-name">${item.nombre || '<Sin nombre>'}</div>
-        <div class="review-item-price">$${parseFloat(item.precio_lista).toLocaleString('es-AR')}</div>
+        <div class="review-item-name" style="${esNombreSucio ? 'color: #c97a34; font-weight: 700;' : ''}">
+          ${item.nombre || '<Sin nombre>'}
+          ${esNombreSucio ? '<span style="font-size:10px; display:block; font-weight:400; color:#c97a34;">⚠ Nombre sin editar</span>' : ''}
+        </div>
+        <div class="review-item-price">$${parseFloat(item.precio_lista || 0).toLocaleString('es-AR')}</div>
       </div>
-      <div class="review-item-edit">Editar 📝</div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="review-item-edit">Editar 📝</div>
+        <button class="btn-eliminar-item" onclick="eliminarProductoDelLote(${idx})">🗑️</button>
+      </div>
     `;
     reviewList.appendChild(div);
   });
+}
+
+function eliminarProductoDelLote(idx) {
+  if (confirm('¿Querés eliminar esta foto del lote actual?')) {
+    URL.revokeObjectURL(listaProductos[idx].tempUrl); // Liberar URL de memoria
+    listaProductos.splice(idx, 1); // Quitar del lote
+
+    if (listaProductos.length === 0) {
+      // Si ya no quedan fotos, regresamos a la pantalla de carga inicial
+      document.getElementById('reviewWrap').style.display = 'none';
+      document.getElementById('uploadZoneWrap').style.display = 'block';
+      mostrarMsg('Lote descartado', 'ok');
+    } else {
+      // Regenerar listado visual de revisión
+      abrirPantallaRevision();
+    }
+  }
 }
 
 function irATarjetaDesdeRevision(idx) {
