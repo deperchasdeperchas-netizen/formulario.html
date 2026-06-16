@@ -72,6 +72,17 @@
     .btn-finalizar{background:#e63946}
     .btn-finalizar:hover{background:#c32f3c}
     
+    /* PANTALLA DE REVISIÓN EN LISTA */
+    .review-wrap{display:none}
+    .review-list{max-height:320px;overflow-y:auto;border:1.5px solid #e9e4dc;border-radius:12px;padding:8px;background:#f9f7f4;margin-bottom:16px}
+    .review-item{display:flex;align-items:center;gap:12px;padding:8px;background:white;border-radius:8px;margin-bottom:8px;border:1px solid #e9e4dc;cursor:pointer;transition:background 0.15s}
+    .review-item:hover{background:#f0f7f4}
+    .review-item-img{width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid #e9e4dc}
+    .review-item-info{flex:1;min-width:0}
+    .review-item-name{font-size:13px;font-weight:600;color:#1c1917;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .review-item-price{font-size:12px;font-weight:700;color:#2d6a4f;margin-top:2px}
+    .review-item-edit{font-size:11px;color:#9c968e;font-weight:600}
+    
     /* Progreso de subida global */
     .upload-progress-wrap{display:none;text-align:center;padding:20px 0}
     .upload-progress-text{font-size:13px;font-weight:600;color:#1c1917;margin-bottom:12px}
@@ -109,13 +120,13 @@
     </div>
   </div>
 
-  <!-- PASO 2: Workspace de Edición (Carrusel + Mejoras UX) -->
+  <!-- PASO 2: Workspace de Edición (Carrusel) -->
   <div class="workspace-wrap" id="workspaceWrap">
     <!-- Barras estilo Historias -->
     <div class="progress-segments" id="progressSegments"></div>
 
     <div class="card-header">
-      <div class="card-counter" id="cardCounter">Producto 1 de 1</div>
+      <div class="card-counter" id="cardCounter">Foto 1 de 1 de este lote</div>
       <div style="display:flex; gap:12px; align-items:center;">
         <!-- Input oculto para anexar fotos sobre la marcha -->
         <input type="file" id="inputAnexarFotos" accept="image/*" multiple style="display:none" onchange="anexarFotosLote(this)">
@@ -143,19 +154,31 @@
 
     <!-- Minimapa por puntos (Dots) -->
     <div class="minimap-wrapper">
-      <div class="minimap-label">Mapa de carga rápida:</div>
+      <div class="minimap-label">Progreso de edición del lote actual:</div>
       <div class="minimap-dots" id="minimapContainer"></div>
     </div>
 
     <!-- Navegación -->
     <div class="card-nav">
-      <!-- Este botón muta dinámicamente: añade fotos si es el primer elemento, o retrocede si es cualquier otro -->
       <button class="btn-prev btn-nav" id="btnPrev" onclick="clickBotonAtras()">＋ Añadir más</button>
       <button class="btn-next btn-nav" id="btnNext" onclick="tarjetaSiguiente()">Siguiente ➔</button>
     </div>
   </div>
 
-  <!-- PASO 3: Progreso de subida activa -->
+  <!-- PASO 3: Nueva Pantalla de Revisión -->
+  <div class="review-wrap" id="reviewWrap">
+    <h3 style="font-size: 16px; margin-bottom: 4px; color: #1c1917">Revisar fotos antes de enviar</h3>
+    <p style="font-size: 12px; color: #9c968e; margin-bottom: 14px">Tocá cualquier producto de la lista si deseás volver a editarlo o corregir su precio.</p>
+    
+    <div class="review-list" id="reviewList"></div>
+
+    <div style="display:flex; gap:10px">
+      <button style="background: #e9e4dc; color: #1c1917; width: 35%" onclick="volverAEditar()">◀ Volver</button>
+      <button style="flex:1" id="btnConfirmarYSubir" onclick="confirmarYEnviarTodo()">Confirmar y subir todo ✅</button>
+    </div>
+  </div>
+
+  <!-- PASO 4: Progreso de subida activa -->
   <div class="upload-progress-wrap" id="uploadProgressWrap">
     <div class="upload-progress-text" id="progressUploadText">Comprimiendo y subiendo lote...</div>
     <div class="progress-wrap">
@@ -284,7 +307,6 @@ function procesarFotos(input) {
   mostrarWorkspace();
 }
 
-// Anexa nuevas fotos al final del lote actual conservando lo que ya está escrito
 function anexarFotosLote(input) {
   const files = Array.from(input.files);
   if (!files.length) return;
@@ -294,7 +316,6 @@ function anexarFotosLote(input) {
   const cargados = clienteData ? (clienteData.productos_cargados || 0) : 0;
   const restantes = limite - cargados;
 
-  // Calculamos espacio real disponible teniendo en cuenta el lote actual editándose
   const disponibles = restantes - listaProductos.length;
 
   let archivosAAnexar = files;
@@ -319,9 +340,7 @@ function anexarFotosLote(input) {
   const antiguoLargo = listaProductos.length;
   listaProductos = [...listaProductos, ...nuevosProductos];
   
-  input.value = ''; // Limpiar input para futuras cargas
-  
-  // Posicionamos a la clienta en la primera tarjeta de las nuevas añadidas
+  input.value = '';
   cargarTarjeta(antiguoLargo);
   mostrarMsg(`Se agregaron ${nuevosProductos.length} fotos al lote`, 'ok');
 }
@@ -347,12 +366,11 @@ function cargarTarjeta(idx) {
 
   const item = listaProductos[indexActual];
 
-  document.getElementById('cardCounter').textContent = `Producto ${indexActual + 1} de ${listaProductos.length}`;
+  document.getElementById('cardCounter').textContent = `Foto ${indexActual + 1} de ${listaProductos.length} de este lote`;
   document.getElementById('cardImg').src = item.tempUrl;
   document.getElementById('cardNombre').value = item.nombre;
   document.getElementById('cardPrecio').value = item.precio_lista;
 
-  // Lógica dinámica del botón de retroceso (Atrás vs Añadir más no destructivo)
   const btnPrev = document.getElementById('btnPrev');
   if (indexActual === 0) {
     btnPrev.textContent = '＋ Añadir más';
@@ -366,8 +384,7 @@ function cargarTarjeta(idx) {
 
   const btnNext = document.getElementById('btnNext');
   if (indexActual === listaProductos.length - 1) {
-    const textoSubida = listaProductos.length === 1 ? 'Subir producto 🚀' : `Subir lote (${listaProductos.length}) 🚀`;
-    btnNext.textContent = textoSubida;
+    btnNext.textContent = 'Revisar lote 🚀';
     btnNext.className = 'btn-next btn-nav btn-finalizar';
   } else {
     btnNext.textContent = 'Siguiente ➔';
@@ -390,7 +407,6 @@ function clickBotonAtras() {
   if (indexActual > 0) {
     tarjetaAnterior();
   } else {
-    // En el Producto 1, en lugar de borrar todo, abrimos el selector de fotos para sumar más de forma no destructiva
     document.getElementById('inputAnexarFotos').click();
   }
 }
@@ -479,8 +495,49 @@ function tarjetaSiguiente() {
   if (indexActual < listaProductos.length - 1) {
     cargarTarjeta(indexActual + 1);
   } else {
-    enviarLote();
+    abrirPantallaRevision();
   }
+}
+
+// LÓGICA DE LA PANTALLA DE REVISIÓN
+function abrirPantallaRevision() {
+  document.getElementById('workspaceWrap').style.display = 'none';
+  const reviewWrap = document.getElementById('reviewWrap');
+  reviewWrap.style.display = 'block';
+
+  // Cambiar título del botón según cantidad de fotos
+  const btnSubir = document.getElementById('btnConfirmarYSubir');
+  btnSubir.textContent = listaProductos.length === 1 ? 'Confirmar y subir producto ✅' : `Confirmar y subir lote (${listaProductos.length}) ✅`;
+
+  const reviewList = document.getElementById('reviewList');
+  reviewList.innerHTML = '';
+
+  listaProductos.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'review-item';
+    div.onclick = () => irATarjetaDesdeRevision(idx);
+
+    div.innerHTML = `
+      <img src="${item.tempUrl}" class="review-item-img">
+      <div class="review-item-info">
+        <div class="review-item-name">${item.nombre || '<Sin nombre>'}</div>
+        <div class="review-item-price">$${parseFloat(item.precio_lista).toLocaleString('es-AR')}</div>
+      </div>
+      <div class="review-item-edit">Editar 📝</div>
+    `;
+    reviewList.appendChild(div);
+  });
+}
+
+function irATarjetaDesdeRevision(idx) {
+  document.getElementById('reviewWrap').style.display = 'none';
+  document.getElementById('workspaceWrap').style.display = 'block';
+  cargarTarjeta(idx);
+}
+
+function volverAEditar() {
+  document.getElementById('reviewWrap').style.display = 'none';
+  document.getElementById('workspaceWrap').style.display = 'block';
 }
 
 // Redimensionado/Compresión de imagen en el cliente para ahorro de datos
@@ -530,20 +587,10 @@ async function subirFoto(compressedBlob) {
   return (await res.json()).secure_url;
 }
 
-async function enviarLote() {
+async function confirmarYEnviarTodo() {
   if (!clienteData) return;
 
-  // Validación colectiva final preventiva
-  for (let i = 0; i < listaProductos.length; i++) {
-    const p = listaProductos[i];
-    if (!p.nombre.trim() || !p.precio_lista || parseFloat(p.precio_lista) <= 0) {
-      cargarTarjeta(i);
-      mostrarMsg(`Completá los datos del producto ${i + 1}`, 'err');
-      return;
-    }
-  }
-
-  document.getElementById('workspaceWrap').style.display = 'none';
+  document.getElementById('reviewWrap').style.display = 'none';
   const progressWrap = document.getElementById('uploadProgressWrap');
   progressWrap.style.display = 'block';
 
@@ -561,13 +608,9 @@ async function enviarLote() {
       progressBar.style.width = `${((i) / total) * 100}%`;
       progressText.textContent = `Optimizando y subiendo ${i + 1} de ${total}: ${item.nombre}`;
 
-      // 1. Compresión instantánea en cliente
       const blobCompreso = await comprimirImagen(item.file);
-
-      // 2. Subida rápida
       const foto_url = await subirFoto(blobCompreso);
 
-      // 3. Envío de datos a Supabase
       const resP = await fetch(`${SUPABASE_URL}/rest/v1/productos`, {
         method: 'POST',
         headers: { 
@@ -589,7 +632,6 @@ async function enviarLote() {
       exitos++;
     }
 
-    // Actualización de contadores globales
     const nuevoTotal = cargadosIniciales + exitos;
     await fetch(`${SUPABASE_URL}/rest/v1/clientas?id=eq.${clienteId}`, {
       method: 'PATCH',
@@ -618,7 +660,7 @@ async function enviarLote() {
 
   } catch(e) {
     progressWrap.style.display = 'none';
-    document.getElementById('workspaceWrap').style.display = 'block';
+    document.getElementById('reviewWrap').style.display = 'block';
     mostrarMsg(`Error procesando envío: ${e.message}`, 'err');
   }
 }
